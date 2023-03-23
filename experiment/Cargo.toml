@@ -12,3 +12,5 @@ keywords = ["curio", "ecs", "full on-chain"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+shred = "0.14.1"
+specs = { version = "0.18.0", features = ["parallel", "derive"] }
