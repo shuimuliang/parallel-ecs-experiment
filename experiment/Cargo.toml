@@ -11,6 +11,12 @@ keywords = ["curio", "ecs", "full on-chain"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[lib]
+crate-type = ["cdylib"]
+name = "ecs_experiment"
+
 [dependencies]
+anyhow = "1.0.70"
+libloading = "0.7.4"
 shred = "0.14.1"
 specs = { version = "0.18.0", features = ["parallel", "derive"] }
