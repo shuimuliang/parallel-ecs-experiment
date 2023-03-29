@@ -37,7 +37,6 @@ impl<'a> System<'a> for MovementSystem {
                 start_pos.point.append_y(y_direction * (v.y as i64));
             }
             dbg!(entity.id());
-            dbg!("movement once");
         }
         dbg!("movement once");
     }
@@ -95,7 +94,7 @@ mod tests {
         world.register::<StartPosition>();
         world.register::<EndPosition>();
         world.register::<Velocity>();
-        //
+
         let entity = world
             .create_entity()
             .with(StartPosition::new(0, 0))
@@ -156,4 +155,43 @@ mod tests {
 
     #[test]
     fn test_dispatcher_say_goodbye_to_entities() {}
+
+    #[test]
+    fn query_entity_contain_position_component() {
+
+        struct QuerySystem;
+
+        impl<'a> System<'a> for QuerySystem {
+            type SystemData = (Entities<'a>, ReadStorage<'a, StartPosition>);
+
+            fn run(&mut self, (entities, _start_pos): Self::SystemData) {
+                let mut v = Vec::new();
+                for (entity, _) in (&entities, &_start_pos).join() {
+                    v.push(entity.id());
+                }
+                dbg!(&v);
+            }
+        }
+
+        let mut world = World::new();
+        world.register::<StartPosition>();
+        world.register::<EndPosition>();
+        world.register::<Velocity>();
+
+        let _entity1 = world
+            .create_entity()
+            .with(StartPosition::new(0, 0))
+            .with(EndPosition::new(2, 4))
+            .with(Velocity::new(1, 2))
+            .build();
+
+        let _entity2 = world
+            .create_entity()
+            .with(EndPosition::new(2, 4))
+            .build();
+
+        let mut query_system = QuerySystem;
+        query_system.run_now(&world);
+
+    }
 }

@@ -1,11 +1,10 @@
 // Inventory System
 // Entity: cow
-// Components: Asset(apple, banana, orange), StartPosition{x: i64, y: i64}, EndPosition{x: i64, y: i64}
-// Components: Inventory HashMap<AssetKind, u64>, Asset
+// Components: entity_id, EndPosition{point}, Inventory HashMap<AssetKind, u64>, Global AssetMap
 // Description:
-// a cow entity can move from StartPosition to EndPosition
-// When a cow moves onto an Asset apple, take the apple into the inventory.
-// call movement_system first, then inventory_system
+// a cow entity finally moved to EndPosition in MoveSystem
+// if it is on an apple Asset, take the apple into the inventory component
+// movement_system 1st, inventory_system 2nd
 
 use {
     crate::components::{EndPosition, Inventory, Map},
