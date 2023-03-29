@@ -1,22 +1,24 @@
 use {
     crate::components::{EndPosition, StartPosition, Velocity},
-    specs::{Join, ReadStorage, System, WriteStorage},
+    specs::{Entities, Join, ReadStorage, System, WriteStorage},
 };
 
 // a entity has a start position and end position, and velocity
 // create a movement system, let entity move from start position to end position
 
+// TODO: MovementSystem for Multi-entity collisions
 pub struct MovementSystem;
 
 impl<'a> System<'a> for MovementSystem {
     type SystemData = (
+        Entities<'a>,
         WriteStorage<'a, StartPosition>,
         ReadStorage<'a, EndPosition>,
         ReadStorage<'a, Velocity>,
     );
 
-    fn run(&mut self, (mut start_pos, end_pos, v): Self::SystemData) {
-        for (start_pos, end_pos, v) in (&mut start_pos, &end_pos, &v).join() {
+    fn run(&mut self, (entities, mut start_pos, end_pos, v): Self::SystemData) {
+        for (entity, start_pos, end_pos, v) in (&entities, &mut start_pos, &end_pos, &v).join() {
             let mut x_direction = 1_i64;
             let mut y_direction = 1_i64;
             let x_delta = end_pos.point.x - start_pos.point.x;
@@ -34,6 +36,8 @@ impl<'a> System<'a> for MovementSystem {
             if y_delta != 0 {
                 start_pos.point.append_y(y_direction * (v.y as i64));
             }
+            dbg!(entity.id());
+            dbg!("movement once");
         }
         dbg!("movement once");
     }
@@ -72,7 +76,8 @@ mod tests {
         assert_eq!(end_pos.point.y, 4);
 
         let v = world.read_storage::<Velocity>();
-        movement_system.run((start_pos_comp, end_pos_comp, v));
+        let entities = world.entities();
+        movement_system.run((entities, start_pos_comp, end_pos_comp, v));
 
         let start_pos_comp = world.write_storage::<StartPosition>();
         let start_pos = start_pos_comp.get(entity).unwrap();
@@ -114,13 +119,16 @@ mod tests {
         }
     }
 
-    struct SayGoodByeSystem;
+    struct FinalReportSystem;
 
-    impl<'a> System<'a> for SayGoodByeSystem {
-        type SystemData = ();
+    impl<'a> System<'a> for FinalReportSystem {
+        type SystemData = (Entities<'a>, ReadStorage<'a, EndPosition>);
 
-        fn run(&mut self, _: Self::SystemData) {
-            dbg!("goodbye");
+        fn run(&mut self, (entities, end_pos): Self::SystemData) {
+            for (entity, e) in (&entities, &end_pos).join() {
+                dbg!(entity);
+                dbg!(&e);
+            }
         }
     }
 
@@ -128,7 +136,7 @@ mod tests {
     fn test_dispatcher_say_goodbye() {
         let mut dispatcher = DispatcherBuilder::new()
             .with(MovementSystem, "movement", &[])
-            .with(SayGoodByeSystem, "saygoodbye", &["movement"])
+            .with(FinalReportSystem, "final_report", &["movement"])
             .build();
 
         let mut world = World::new();
@@ -145,4 +153,7 @@ mod tests {
 
         dispatcher.dispatch(&mut world);
     }
+
+    #[test]
+    fn test_dispatcher_say_goodbye_to_entities() {}
 }
