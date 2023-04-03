@@ -158,7 +158,6 @@ mod tests {
 
     #[test]
     fn query_entity_contain_position_component() {
-
         struct QuerySystem;
 
         impl<'a> System<'a> for QuerySystem {
@@ -185,13 +184,9 @@ mod tests {
             .with(Velocity::new(1, 2))
             .build();
 
-        let _entity2 = world
-            .create_entity()
-            .with(EndPosition::new(2, 4))
-            .build();
+        let _entity2 = world.create_entity().with(EndPosition::new(2, 4)).build();
 
         let mut query_system = QuerySystem;
         query_system.run_now(&world);
-
     }
 }
