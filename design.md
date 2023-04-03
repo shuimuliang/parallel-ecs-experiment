@@ -1,5 +1,5 @@
 
-# concurrency design in specs
+# parallel design in specs
 
 * The `Storage` component is pre-defined as readable or writable.
 
